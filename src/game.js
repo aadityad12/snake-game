@@ -5,20 +5,22 @@ import {
   advance,
   togglePause,
   restart,
-  positionsEqual,
 } from "./logic.js";
 
 const board = document.getElementById("board");
 const scoreEl = document.getElementById("score");
+const scoreP2El = document.getElementById("score-p2");
+const modeSelect = document.getElementById("mode");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
 const restartBtn = document.getElementById("restart");
-const dpad = document.querySelector(".dpad");
+const dpadP1 = document.querySelector(".dpad.p1");
+const dpadP2 = document.querySelector(".dpad.p2");
 
 const TICK_MS = 140;
 
-let state = initState();
+let state = initState(modeSelect.value);
 let timerId = null;
 const cells = [];
 
@@ -45,13 +47,18 @@ function cellAt(pos) {
 function render() {
   cells.forEach((cell) => {
     cell.classList.remove("snake", "head", "food");
+    cell.classList.remove("snake-1", "snake-2", "head-1", "head-2");
   });
 
-  state.snake.forEach((segment, index) => {
-    const cell = cellAt(segment);
-    if (!cell) return;
-    cell.classList.add("snake");
-    if (index === 0) cell.classList.add("head");
+  state.snakes.forEach((snake, snakeIndex) => {
+    snake.forEach((segment, index) => {
+      const cell = cellAt(segment);
+      if (!cell) return;
+      const snakeClass = snakeIndex === 0 ? "snake-1" : "snake-2";
+      const headClass = snakeIndex === 0 ? "head-1" : "head-2";
+      cell.classList.add("snake", snakeClass);
+      if (index === 0) cell.classList.add("head", headClass);
+    });
   });
 
   if (state.food) {
@@ -59,10 +66,14 @@ function render() {
     if (foodCell) foodCell.classList.add("food");
   }
 
-  scoreEl.textContent = String(state.score);
+  scoreEl.textContent = String(state.scores[0] ?? 0);
+  if (scoreP2El) scoreP2El.textContent = String(state.scores[1] ?? 0);
 
   if (state.status === "ready") {
-    statusEl.textContent = "Press Start or hit any arrow/WASD key.";
+    statusEl.textContent =
+      state.mode === "multi"
+        ? "Player 1: arrows/WASD. Player 2: IJKL."
+        : "Press Start or hit any arrow/WASD key.";
   } else if (state.status === "paused") {
     statusEl.textContent = "Paused.";
   } else if (state.status === "over") {
@@ -73,6 +84,14 @@ function render() {
 
   startBtn.disabled = state.status !== "ready";
   pauseBtn.disabled = state.status === "ready" || state.status === "over";
+
+  if (modeSelect) {
+    modeSelect.value = state.mode;
+  }
+
+  if (dpadP2) {
+    dpadP2.classList.toggle("hidden", state.mode !== "multi");
+  }
 }
 
 function tick() {
@@ -105,16 +124,18 @@ function beginPlay() {
 
 function handleDirection(dir) {
   if (state.status === "ready") beginPlay();
-  state = setDirection(state, dir);
+  state = setDirection(state, 0, dir);
+  render();
+}
+
+function handleDirectionP2(dir) {
+  if (state.status === "ready") beginPlay();
+  state = setDirection(state, 1, dir);
   render();
 }
 
 function onKeyDown(event) {
-  const map = {
-    ArrowUp: "up",
-    ArrowDown: "down",
-    ArrowLeft: "left",
-    ArrowRight: "right",
+  const p1Map = {
     w: "up",
     a: "left",
     s: "down",
@@ -125,10 +146,26 @@ function onKeyDown(event) {
     D: "right",
   };
 
-  const dir = map[event.key];
+  const p2Map = {
+    ArrowUp: "up",
+    ArrowDown: "down",
+    ArrowLeft: "left",
+    ArrowRight: "right",
+  };
+
+  const dir = p1Map[event.key];
+  const dirP2 = p2Map[event.key];
+
   if (dir) {
     event.preventDefault();
     handleDirection(dir);
+    return;
+  }
+
+  if (dirP2 && state.mode === "multi") {
+    event.preventDefault();
+    handleDirectionP2(dirP2);
+    return;
   }
 
   if (event.key === " ") {
@@ -156,6 +193,12 @@ function onDpadClick(event) {
   handleDirection(button.dataset.dir);
 }
 
+function onDpadP2Click(event) {
+  const button = event.target.closest("button[data-dir]");
+  if (!button) return;
+  handleDirectionP2(button.dataset.dir);
+}
+
 function onStart() {
   beginPlay();
 }
@@ -170,6 +213,12 @@ function onPause() {
   togglePauseGame();
 }
 
+function onModeChange(event) {
+  stopLoop();
+  state = initState(event.target.value);
+  render();
+}
+
 buildBoard();
 render();
 
@@ -177,4 +226,6 @@ window.addEventListener("keydown", onKeyDown);
 startBtn.addEventListener("click", onStart);
 pauseBtn.addEventListener("click", onPause);
 restartBtn.addEventListener("click", onRestart);
-if (dpad) dpad.addEventListener("click", onDpadClick);
+if (dpadP1) dpadP1.addEventListener("click", onDpadClick);
+if (dpadP2) dpadP2.addEventListener("click", onDpadP2Click);
+if (modeSelect) modeSelect.addEventListener("change", onModeChange);

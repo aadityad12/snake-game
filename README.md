@@ -15,8 +15,9 @@ Then open `http://localhost:5173/` in your browser.
 ## Controls
 
 - Arrow keys or WASD to steer.
+- Player 2 uses IJKL in 2-player mode.
 - Space to pause/resume.
-- On-screen D-pad buttons on small screens.
+- On-screen D-pad buttons on small screens (P1 and P2 in 2-player mode).
 
 ## Manual Verification Checklist
 

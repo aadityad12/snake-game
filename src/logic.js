@@ -9,19 +9,36 @@ export const DIRECTIONS = {
 
 const DEFAULT_DIRECTION = "right";
 
-export function initState(rng = Math.random) {
+export function initState(mode = "single", rng = Math.random) {
   const mid = Math.floor(GRID_SIZE / 2);
-  const snake = [
-    { x: mid - 1, y: mid },
-    { x: mid - 2, y: mid },
-  ];
+  const snakes =
+    mode === "multi"
+      ? [
+          [
+            { x: mid - 4, y: mid },
+            { x: mid - 5, y: mid },
+          ],
+          [
+            { x: mid + 4, y: mid },
+            { x: mid + 5, y: mid },
+          ],
+        ]
+      : [
+          [
+            { x: mid - 1, y: mid },
+            { x: mid - 2, y: mid },
+          ],
+        ];
+
+  const directions = mode === "multi" ? ["right", "left"] : [DEFAULT_DIRECTION];
 
   const base = {
-    snake,
-    direction: DEFAULT_DIRECTION,
-    nextDirection: DEFAULT_DIRECTION,
+    mode,
+    snakes,
+    directions,
+    nextDirections: [...directions],
     food: null,
-    score: 0,
+    scores: directions.map(() => 0),
     status: "ready",
   };
 
@@ -31,44 +48,80 @@ export function initState(rng = Math.random) {
   };
 }
 
-export function setDirection(state, direction) {
+export function setDirection(state, playerIndex, direction) {
   if (!DIRECTIONS[direction]) return state;
-  if (isOpposite(direction, state.direction)) return state;
-  return { ...state, nextDirection: direction };
+  if (playerIndex < 0 || playerIndex >= state.snakes.length) return state;
+  if (isOpposite(direction, state.directions[playerIndex])) return state;
+
+  const nextDirections = [...state.nextDirections];
+  nextDirections[playerIndex] = direction;
+  return { ...state, nextDirections };
 }
 
 export function advance(state, rng = Math.random) {
   if (state.status === "over" || state.status === "paused") return state;
 
-  const direction = state.nextDirection;
-  const head = state.snake[0];
-  const delta = DIRECTIONS[direction];
-  const nextHead = { x: head.x + delta.x, y: head.y + delta.y };
+  const nextDirections = [...state.nextDirections];
+  const nextHeads = state.snakes.map((snake, index) => {
+    const head = snake[0];
+    const delta = DIRECTIONS[nextDirections[index]];
+    return { x: head.x + delta.x, y: head.y + delta.y };
+  });
 
-  const ateFood = state.food && positionsEqual(nextHead, state.food);
-  const bodyToCheck = ateFood ? state.snake : state.snake.slice(0, -1);
+  const willGrow = nextHeads.map(
+    (nextHead) => state.food && positionsEqual(nextHead, state.food)
+  );
 
-  if (hitsWall(nextHead) || hitsSelf(nextHead, bodyToCheck)) {
+  const collisionBodies = state.snakes.map((snake, index) =>
+    willGrow[index] ? snake : snake.slice(0, -1)
+  );
+
+  let collision = false;
+
+  nextHeads.forEach((nextHead) => {
+    if (hitsWall(nextHead)) collision = true;
+  });
+
+  for (let i = 0; i < nextHeads.length; i += 1) {
+    for (let j = i + 1; j < nextHeads.length; j += 1) {
+      if (positionsEqual(nextHeads[i], nextHeads[j])) collision = true;
+    }
+  }
+
+  for (let i = 0; i < nextHeads.length; i += 1) {
+    if (hitsSelf(nextHeads[i], collisionBodies[i])) collision = true;
+    for (let j = 0; j < collisionBodies.length; j += 1) {
+      if (i === j) continue;
+      if (hitsSelf(nextHeads[i], collisionBodies[j])) collision = true;
+    }
+  }
+
+  if (collision) {
     return { ...state, status: "over" };
   }
 
-  const nextSnake = [nextHead, ...state.snake];
-  if (!ateFood) nextSnake.pop();
+  const nextSnakes = state.snakes.map((snake, index) => {
+    const nextSnake = [nextHeads[index], ...snake];
+    if (!willGrow[index]) nextSnake.pop();
+    return nextSnake;
+  });
+
+  const nextScores = state.scores.map(
+    (score, index) => score + (willGrow[index] ? 1 : 0)
+  );
 
   let nextFood = state.food;
-  let nextScore = state.score;
-
-  if (ateFood) {
-    nextScore += 1;
-    nextFood = placeFood({ ...state, snake: nextSnake }, rng);
+  if (willGrow.some(Boolean)) {
+    nextFood = placeFood({ ...state, snakes: nextSnakes }, rng);
   }
 
   return {
     ...state,
-    snake: nextSnake,
-    direction,
+    snakes: nextSnakes,
+    directions: nextDirections,
+    nextDirections,
     food: nextFood,
-    score: nextScore,
+    scores: nextScores,
     status: "playing",
   };
 }
@@ -79,12 +132,14 @@ export function togglePause(state) {
 }
 
 export function restart(state, rng = Math.random) {
-  return initState(rng);
+  return initState(state.mode, rng);
 }
 
 export function placeFood(state, rng = Math.random) {
   const empty = [];
-  const occupied = new Set(state.snake.map((pos) => `${pos.x},${pos.y}`));
+  const occupied = new Set(
+    state.snakes.flat().map((pos) => `${pos.x},${pos.y}`)
+  );
 
   for (let y = 0; y < GRID_SIZE; y += 1) {
     for (let x = 0; x < GRID_SIZE; x += 1) {
