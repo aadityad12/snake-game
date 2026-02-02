@@ -14,10 +14,15 @@ Then open `http://localhost:5173/` in your browser.
 
 ## Controls
 
-- Arrow keys or WASD to steer.
-- Player 2 uses IJKL in 2-player mode.
+- Single player: arrow keys or WASD.
+- 2-player mode: P1 uses WASD, P2 uses arrow keys.
 - Space to pause/resume.
 - On-screen D-pad buttons on small screens (P1 and P2 in 2-player mode).
+
+## High Score
+
+- Tracks the best score for single-player mode only.
+- Stored locally in your browser (localStorage).
 
 ## Manual Verification Checklist
 

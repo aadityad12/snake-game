@@ -10,6 +10,7 @@ import {
 const board = document.getElementById("board");
 const scoreEl = document.getElementById("score");
 const scoreP2El = document.getElementById("score-p2");
+const highScoreEl = document.getElementById("high-score");
 const modeSelect = document.getElementById("mode");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
@@ -23,6 +24,19 @@ const TICK_MS = 140;
 let state = initState(modeSelect.value);
 let timerId = null;
 const cells = [];
+const HIGH_SCORE_KEY = "snake.highScore";
+let highScore = loadHighScore();
+
+function loadHighScore() {
+  const stored = window.localStorage.getItem(HIGH_SCORE_KEY);
+  const parsed = Number.parseInt(stored ?? "0", 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function saveHighScore(nextScore) {
+  highScore = nextScore;
+  window.localStorage.setItem(HIGH_SCORE_KEY, String(nextScore));
+}
 
 function buildBoard() {
   board.innerHTML = "";
@@ -68,11 +82,12 @@ function render() {
 
   scoreEl.textContent = String(state.scores[0] ?? 0);
   if (scoreP2El) scoreP2El.textContent = String(state.scores[1] ?? 0);
+  if (highScoreEl) highScoreEl.textContent = String(highScore);
 
   if (state.status === "ready") {
     statusEl.textContent =
       state.mode === "multi"
-        ? "Player 1: arrows/WASD. Player 2: IJKL."
+        ? "Player 1: WASD. Player 2: arrow keys."
         : "Press Start or hit any arrow/WASD key.";
   } else if (state.status === "paused") {
     statusEl.textContent = "Paused.";
@@ -96,6 +111,9 @@ function render() {
 
 function tick() {
   state = advance(state);
+  if (state.mode === "single" && state.scores[0] > highScore) {
+    saveHighScore(state.scores[0]);
+  }
   render();
 
   if (state.status === "over") {
