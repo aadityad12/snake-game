@@ -1,0 +1,124 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f2ee;
+  --ink: #1b1b1b;
+  --panel: #fff;
+  --accent: #1f6f5c;
+  --grid: #d8d3cc;
+  --food: #d1495b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.score {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.score strong {
+  font-size: 20px;
+}
+
+.board-wrap {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 12px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--grid);
+}
+
+.cell {
+  border: 1px solid var(--grid);
+  background: transparent;
+}
+
+.cell.snake {
+  background: var(--accent);
+}
+
+.cell.head {
+  background: #0f3b2f;
+}
+
+.cell.food {
+  background: var(--food);
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+}
+
+.controls button,
+.dpad button {
+  font: inherit;
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status {
+  min-height: 20px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.dpad {
+  display: grid;
+  gap: 6px;
+  justify-content: start;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 6px;
+}
+
+@media (min-width: 720px) {
+  .dpad {
+    display: none;
+  }
+}

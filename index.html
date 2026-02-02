@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snake</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <h1>Snake</h1>
+        <div class="score">
+          <span>Score</span>
+          <strong id="score">0</strong>
+        </div>
+      </header>
+
+      <section class="board-wrap" aria-label="Snake board">
+        <div id="board" class="board" role="grid" aria-live="polite"></div>
+      </section>
+
+      <section class="controls">
+        <button id="start" type="button">Start</button>
+        <button id="pause" type="button">Pause</button>
+        <button id="restart" type="button">Restart</button>
+      </section>
+
+      <section class="dpad" aria-label="On-screen controls">
+        <button data-dir="up" aria-label="Move up">▲</button>
+        <div class="dpad-row">
+          <button data-dir="left" aria-label="Move left">◀</button>
+          <button data-dir="down" aria-label="Move down">▼</button>
+          <button data-dir="right" aria-label="Move right">▶</button>
+        </div>
+      </section>
+
+      <p id="status" class="status" role="status"></p>
+    </main>
+
+    <script type="module" src="./src/game.js"></script>
+  </body>
+</html>
