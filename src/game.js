@@ -18,6 +18,7 @@ const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
 const restartBtn = document.getElementById("restart");
+const themeToggle = document.getElementById("theme-toggle");
 const dpadP1 = document.querySelector(".dpad.p1");
 const dpadP2 = document.querySelector(".dpad.p2");
 
@@ -27,12 +28,31 @@ let state = initState(modeSelect.value);
 let timerId = null;
 const cells = [];
 const HIGH_SCORE_KEY = "snake.highScore";
+const THEME_KEY = "snake.theme";
 let highScore = loadHighScore();
 
 function loadHighScore() {
   const stored = window.localStorage.getItem(HIGH_SCORE_KEY);
   const parsed = Number.parseInt(stored ?? "0", 10);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function loadTheme() {
+  const stored = window.localStorage.getItem(THEME_KEY);
+  return stored === "dark" ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  if (themeToggle) {
+    themeToggle.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+  }
+}
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  window.localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
 }
 
 function saveHighScore(nextScore) {
@@ -189,16 +209,25 @@ function onKeyDown(event) {
   const dir = p1Map[event.key];
   const dirP2 = p2Map[event.key];
 
-  if (dir) {
-    event.preventDefault();
-    handleDirection(dir);
-    return;
-  }
+  if (state.mode === "single") {
+    const singleDir = dir || dirP2;
+    if (singleDir) {
+      event.preventDefault();
+      handleDirection(singleDir);
+      return;
+    }
+  } else {
+    if (dir) {
+      event.preventDefault();
+      handleDirection(dir);
+      return;
+    }
 
-  if (dirP2 && state.mode === "multi") {
-    event.preventDefault();
-    handleDirectionP2(dirP2);
-    return;
+    if (dirP2) {
+      event.preventDefault();
+      handleDirectionP2(dirP2);
+      return;
+    }
   }
 
   if (event.key === " ") {
@@ -254,6 +283,7 @@ function onModeChange(event) {
 
 buildBoard();
 render();
+applyTheme(loadTheme());
 
 window.addEventListener("keydown", onKeyDown);
 startBtn.addEventListener("click", onStart);
@@ -262,3 +292,4 @@ restartBtn.addEventListener("click", onRestart);
 if (dpadP1) dpadP1.addEventListener("click", onDpadClick);
 if (dpadP2) dpadP2.addEventListener("click", onDpadP2Click);
 if (modeSelect) modeSelect.addEventListener("change", onModeChange);
+if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
