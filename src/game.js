@@ -22,10 +22,13 @@ const themeToggle = document.getElementById("theme-toggle");
 const dpadP1 = document.querySelector(".dpad.p1");
 const dpadP2 = document.querySelector(".dpad.p2");
 
-const TICK_MS = 140;
+const BASE_TICK_MS = 500;
+const MIN_TICK_MS = 10;
+const SPEED_STEP_MS = 10;
 
 let state = initState(modeSelect.value);
 let timerId = null;
+let currentTickMs = null;
 const cells = [];
 const HIGH_SCORE_KEY = "snake.highScore";
 const THEME_KEY = "snake.theme";
@@ -146,6 +149,7 @@ function render() {
 
 function tick() {
   state = advance(state);
+  updateSpeed();
   if (state.mode === "single" && state.scores[0] > highScore) {
     saveHighScore(state.scores[0]);
   }
@@ -158,13 +162,31 @@ function tick() {
 
 function startLoop() {
   if (timerId) return;
-  timerId = window.setInterval(tick, TICK_MS);
+  currentTickMs = getTickMs();
+  timerId = window.setInterval(tick, currentTickMs);
 }
 
 function stopLoop() {
   if (!timerId) return;
   window.clearInterval(timerId);
   timerId = null;
+  currentTickMs = null;
+}
+
+function getTickMs() {
+  const totalScore = state.scores.reduce((sum, value) => sum + value, 0);
+  const next = BASE_TICK_MS - totalScore * SPEED_STEP_MS;
+  return Math.max(MIN_TICK_MS, next);
+}
+
+function updateSpeed() {
+  if (!timerId) return;
+  const desired = getTickMs();
+  if (desired !== currentTickMs) {
+    window.clearInterval(timerId);
+    timerId = window.setInterval(tick, desired);
+    currentTickMs = desired;
+  }
 }
 
 function beginPlay() {
