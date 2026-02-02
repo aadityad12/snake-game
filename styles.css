@@ -157,3 +157,7 @@ h1 {
 .dpad.hidden {
   display: none;
 }
+
+.score.hidden {
+  display: none;
+}

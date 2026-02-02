@@ -11,6 +11,8 @@ const board = document.getElementById("board");
 const scoreEl = document.getElementById("score");
 const scoreP2El = document.getElementById("score-p2");
 const highScoreEl = document.getElementById("high-score");
+const highScoreWrap = document.getElementById("high-score-wrap");
+const scoreLabel = document.getElementById("score-label");
 const modeSelect = document.getElementById("mode");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
@@ -83,6 +85,19 @@ function render() {
   scoreEl.textContent = String(state.scores[0] ?? 0);
   if (scoreP2El) scoreP2El.textContent = String(state.scores[1] ?? 0);
   if (highScoreEl) highScoreEl.textContent = String(highScore);
+
+  if (scoreLabel) {
+    scoreLabel.textContent = state.mode === "multi" ? "P1" : "Score";
+  }
+
+  if (scoreP2El) {
+    const p2Wrap = scoreP2El.closest(".score");
+    if (p2Wrap) p2Wrap.classList.toggle("hidden", state.mode !== "multi");
+  }
+
+  if (highScoreWrap) {
+    highScoreWrap.classList.toggle("hidden", state.mode !== "single");
+  }
 
   if (state.status === "ready") {
     statusEl.textContent =
