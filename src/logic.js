@@ -72,9 +72,10 @@ export function advance(state, rng = Math.random) {
     (nextHead) => state.food && positionsEqual(nextHead, state.food)
   );
 
-  const collisionBodies = state.snakes.map((snake, index) =>
-    willGrow[index] ? snake : snake.slice(0, -1)
-  );
+  const collisionBodies = state.snakes.map((snake, index) => {
+    const end = willGrow[index] ? snake.length : Math.max(snake.length - 1, 1);
+    return snake.slice(1, end);
+  });
 
   let collision = false;
 
@@ -85,6 +86,11 @@ export function advance(state, rng = Math.random) {
   for (let i = 0; i < nextHeads.length; i += 1) {
     for (let j = i + 1; j < nextHeads.length; j += 1) {
       if (positionsEqual(nextHeads[i], nextHeads[j])) collision = true;
+      const headI = state.snakes[i][0];
+      const headJ = state.snakes[j][0];
+      if (positionsEqual(nextHeads[i], headJ) && positionsEqual(nextHeads[j], headI)) {
+        collision = true;
+      }
     }
   }
 
