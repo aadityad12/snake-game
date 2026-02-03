@@ -22,9 +22,9 @@ const themeToggle = document.getElementById("theme-toggle");
 const dpadP1 = document.querySelector(".dpad.p1");
 const dpadP2 = document.querySelector(".dpad.p2");
 
-const BASE_TICK_MS = 500;
-const MIN_TICK_MS = 10;
-const SPEED_STEP_MS = 10;
+const BASE_TICK_MS = 160;
+const MIN_TICK_MS = 70;
+const SPEED_STEP_MS = 4;
 
 let state = initState(modeSelect.value);
 let timerId = null;
