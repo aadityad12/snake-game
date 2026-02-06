@@ -16,6 +16,7 @@ const scoreLabel = document.getElementById("score-label");
 const controlsHint = document.getElementById("controls-hint");
 const modeSelect = document.getElementById("mode");
 const wrapWallsToggle = document.getElementById("wrap-walls");
+const speedLevelEl = document.getElementById("speed-level");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
@@ -141,6 +142,10 @@ function render() {
     controlsHint.innerHTML = hints.map((hint) => `<li>${hint}</li>`).join("");
   }
 
+  if (speedLevelEl) {
+    speedLevelEl.textContent = String(getSpeedLevel());
+  }
+
   if (state.status === "ready") {
     statusEl.textContent =
       state.mode === "multi"
@@ -200,6 +205,12 @@ function getTickMs() {
   const totalScore = state.scores.reduce((sum, value) => sum + value, 0);
   const next = BASE_TICK_MS - totalScore * SPEED_STEP_MS;
   return Math.max(MIN_TICK_MS, next);
+}
+
+function getSpeedLevel() {
+  const totalScore = state.scores.reduce((sum, value) => sum + value, 0);
+  const maxLevel = Math.floor((BASE_TICK_MS - MIN_TICK_MS) / SPEED_STEP_MS);
+  return Math.min(totalScore, maxLevel) + 1;
 }
 
 function updateSpeed() {

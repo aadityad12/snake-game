@@ -15,3 +15,6 @@ Update:
 
 Update:
 - Added wrap-walls toggle (UI + logic) for both modes.
+
+Update:
+- Added Speed Level indicator based on tick-speed ramp.
