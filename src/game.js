@@ -195,7 +195,8 @@ function render() {
 
   if (bestOfThreeToggle) {
     bestOfThreeToggle.checked = state.bestOf3;
-    bestOfThreeToggle.disabled = state.mode !== "multi";
+    const wrap = bestOfThreeToggle.closest(".mode");
+    if (wrap) wrap.classList.toggle("hidden", state.mode !== "multi");
   }
 
   if (roundsWrap) {
