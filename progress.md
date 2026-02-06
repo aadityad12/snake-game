@@ -21,3 +21,6 @@ Update:
 
 Update:
 - Persisted wrap-walls setting to localStorage and applied on load.
+
+Update:
+- Added Best-of-3 toggle for 2-player with round tracking and next-round flow.

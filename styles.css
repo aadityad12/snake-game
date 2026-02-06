@@ -231,6 +231,10 @@ h1 {
 .score.hidden {
   display: none;
 }
+
+.mode.hidden {
+  display: none;
+}
 .hints h2 {
   margin: 0 0 6px;
   font-size: 14px;

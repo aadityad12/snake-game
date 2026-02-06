@@ -16,7 +16,10 @@ const scoreLabel = document.getElementById("score-label");
 const controlsHint = document.getElementById("controls-hint");
 const modeSelect = document.getElementById("mode");
 const wrapWallsToggle = document.getElementById("wrap-walls");
+const bestOfThreeToggle = document.getElementById("best-of-three");
 const speedLevelEl = document.getElementById("speed-level");
+const roundsWrap = document.getElementById("rounds-wrap");
+const roundsScoreEl = document.getElementById("rounds-score");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
@@ -42,7 +45,13 @@ function saveWrapWalls(next) {
   window.localStorage.setItem(WRAP_WALLS_KEY, String(next));
 }
 
-let state = { ...initState(modeSelect.value), wrapWalls: loadWrapWalls() };
+let state = {
+  ...initState(modeSelect.value),
+  wrapWalls: loadWrapWalls(),
+  bestOf3: false,
+  roundWins: [0, 0],
+  roundMessage: "",
+};
 let timerId = null;
 let currentTickMs = null;
 const cells = [];
@@ -144,6 +153,7 @@ function render() {
             "P2: Arrow keys",
             "Space: Pause/Resume",
             state.wrapWalls ? "Walls: Wrap" : "Walls: Solid",
+            state.bestOf3 ? "Match: Best of 3" : "Match: Single Round",
           ]
         : [
             "Arrows or WASD",
@@ -157,7 +167,9 @@ function render() {
     speedLevelEl.textContent = String(getSpeedLevel());
   }
 
-  if (state.status === "ready") {
+  if (state.roundMessage) {
+    statusEl.textContent = state.roundMessage;
+  } else if (state.status === "ready") {
     statusEl.textContent =
       state.mode === "multi"
         ? "Player 1: WASD. Player 2: arrow keys."
@@ -181,6 +193,19 @@ function render() {
     wrapWallsToggle.checked = state.wrapWalls;
   }
 
+  if (bestOfThreeToggle) {
+    bestOfThreeToggle.checked = state.bestOf3;
+    bestOfThreeToggle.disabled = state.mode !== "multi";
+  }
+
+  if (roundsWrap) {
+    roundsWrap.classList.toggle("hidden", state.mode !== "multi");
+  }
+
+  if (roundsScoreEl) {
+    roundsScoreEl.textContent = `${state.roundWins[0]}–${state.roundWins[1]}`;
+  }
+
   if (dpadP2) {
     dpadP2.classList.toggle("hidden", state.mode !== "multi");
   }
@@ -191,6 +216,30 @@ function tick() {
   updateSpeed();
   if (state.mode === "single" && state.scores[0] > highScore) {
     saveHighScore(state.scores[0]);
+  }
+
+  if (state.status === "over" && state.mode === "multi" && state.bestOf3) {
+    const nextWins = [...state.roundWins];
+    if (state.scores[0] > state.scores[1]) nextWins[0] += 1;
+    if (state.scores[1] > state.scores[0]) nextWins[1] += 1;
+
+    const matchWinner =
+      nextWins[0] >= 2 ? "P1 wins the match." : nextWins[1] >= 2 ? "P2 wins the match." : "";
+
+    if (matchWinner) {
+      state = { ...state, roundWins: nextWins, roundMessage: matchWinner };
+      stopLoop();
+    } else {
+      const wrapWalls = state.wrapWalls;
+      state = {
+        ...initState("multi"),
+        wrapWalls,
+        bestOf3: true,
+        roundWins: nextWins,
+        roundMessage: "Round over. Press Start for next round.",
+      };
+      stopLoop();
+    }
   }
   render();
 
@@ -357,8 +406,9 @@ function onStart() {
 function onRestart() {
   stopLoop();
   const wrapWalls = state.wrapWalls;
+  const bestOf3 = state.bestOf3;
   state = restart(state);
-  state = { ...state, wrapWalls };
+  state = { ...state, wrapWalls, bestOf3, roundWins: [0, 0], roundMessage: "" };
   render();
 }
 
@@ -369,8 +419,15 @@ function onPause() {
 function onModeChange(event) {
   stopLoop();
   const wrapWalls = state.wrapWalls;
+  const bestOf3 = state.bestOf3;
   state = initState(event.target.value);
-  state = { ...state, wrapWalls };
+  state = {
+    ...state,
+    wrapWalls,
+    bestOf3: event.target.value === "multi" ? bestOf3 : false,
+    roundWins: [0, 0],
+    roundMessage: "",
+  };
   render();
 }
 
@@ -378,6 +435,12 @@ function onWrapWallsChange(event) {
   const next = event.target.checked;
   saveWrapWalls(next);
   state = { ...state, wrapWalls: next };
+  render();
+}
+
+function onBestOfThreeChange(event) {
+  const next = event.target.checked;
+  state = { ...state, bestOf3: next, roundWins: [0, 0], roundMessage: "" };
   render();
 }
 
@@ -394,3 +457,4 @@ if (dpadP2) dpadP2.addEventListener("click", onDpadP2Click);
 if (modeSelect) modeSelect.addEventListener("change", onModeChange);
 if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
 if (wrapWallsToggle) wrapWallsToggle.addEventListener("change", onWrapWallsChange);
+if (bestOfThreeToggle) bestOfThreeToggle.addEventListener("change", onBestOfThreeChange);
