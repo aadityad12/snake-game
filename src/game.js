@@ -29,12 +29,23 @@ const BASE_TICK_MS = 160;
 const MIN_TICK_MS = 70;
 const SPEED_STEP_MS = 4;
 
-let state = initState(modeSelect.value);
+const HIGH_SCORE_KEY = "snake.highScore";
+const THEME_KEY = "snake.theme";
+const WRAP_WALLS_KEY = "snake.wrapWalls";
+
+function loadWrapWalls() {
+  const stored = window.localStorage.getItem(WRAP_WALLS_KEY);
+  return stored === "true";
+}
+
+function saveWrapWalls(next) {
+  window.localStorage.setItem(WRAP_WALLS_KEY, String(next));
+}
+
+let state = { ...initState(modeSelect.value), wrapWalls: loadWrapWalls() };
 let timerId = null;
 let currentTickMs = null;
 const cells = [];
-const HIGH_SCORE_KEY = "snake.highScore";
-const THEME_KEY = "snake.theme";
 let highScore = loadHighScore();
 
 function loadHighScore() {
@@ -364,7 +375,9 @@ function onModeChange(event) {
 }
 
 function onWrapWallsChange(event) {
-  state = { ...state, wrapWalls: event.target.checked };
+  const next = event.target.checked;
+  saveWrapWalls(next);
+  state = { ...state, wrapWalls: next };
   render();
 }
 

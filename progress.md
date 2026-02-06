@@ -18,3 +18,6 @@ Update:
 
 Update:
 - Added Speed Level indicator based on tick-speed ramp.
+
+Update:
+- Persisted wrap-walls setting to localStorage and applied on load.
