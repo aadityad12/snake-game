@@ -189,6 +189,27 @@ function updateSpeed() {
   }
 }
 
+function renderGameToText() {
+  const payload = {
+    note: "Origin is top-left. x increases right, y increases down.",
+    mode: state.mode,
+    status: state.status,
+    scores: state.scores,
+    food: state.food,
+    snakes: state.snakes,
+  };
+  return JSON.stringify(payload);
+}
+
+window.render_game_to_text = renderGameToText;
+window.advanceTime = (ms) => {
+  const steps = Math.max(1, Math.round(ms / getTickMs()));
+  for (let i = 0; i < steps; i += 1) {
+    state = advance(state);
+  }
+  render();
+};
+
 function beginPlay() {
   if (state.status === "ready") {
     state = { ...state, status: "playing" };

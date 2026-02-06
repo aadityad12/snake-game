@@ -8,62 +8,66 @@
   </head>
   <body>
     <main class="app">
-      <header class="topbar">
-        <h1>Snake</h1>
-        <div class="scoreboard">
-          <div class="score score-main">
-            <span id="score-label">Score</span>
-            <strong id="score">0</strong>
-          </div>
-          <div class="score high-score" id="high-score-wrap" aria-live="polite">
-            <span>High</span>
-            <strong id="high-score">0</strong>
-          </div>
-          <div class="score score-p2" aria-live="polite">
-            <span>P2</span>
-            <strong id="score-p2">0</strong>
-          </div>
-        </div>
-      </header>
+      <section class="layout">
+        <section class="board-wrap" aria-label="Snake board">
+          <div id="board" class="board" role="grid" aria-live="polite"></div>
+        </section>
 
-      <section class="mode">
-        <label for="mode">Mode</label>
-        <select id="mode">
-          <option value="single">1 Player</option>
-          <option value="multi">2 Players</option>
-        </select>
+        <aside class="sidebar">
+          <header class="topbar">
+            <h1>Snake</h1>
+            <div class="scoreboard">
+              <div class="score score-main">
+                <span id="score-label">Score</span>
+                <strong id="score">0</strong>
+              </div>
+              <div class="score high-score" id="high-score-wrap" aria-live="polite">
+                <span>High</span>
+                <strong id="high-score">0</strong>
+              </div>
+              <div class="score score-p2" aria-live="polite">
+                <span>P2</span>
+                <strong id="score-p2">0</strong>
+              </div>
+            </div>
+          </header>
+
+          <section class="mode">
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option value="single">1 Player</option>
+              <option value="multi">2 Players</option>
+            </select>
+          </section>
+
+          <section class="controls">
+            <button id="start" type="button">Start</button>
+            <button id="pause" type="button">Pause</button>
+            <button id="restart" type="button">Restart</button>
+            <button id="theme-toggle" type="button">Dark Mode</button>
+          </section>
+
+          <section class="dpad p1" aria-label="On-screen controls player 1">
+            <button data-dir="up" aria-label="Move up">▲</button>
+            <div class="dpad-row">
+              <button data-dir="left" aria-label="Move left">◀</button>
+              <button data-dir="down" aria-label="Move down">▼</button>
+              <button data-dir="right" aria-label="Move right">▶</button>
+            </div>
+          </section>
+
+          <section class="dpad p2 hidden" aria-label="On-screen controls player 2">
+            <button data-dir="up" aria-label="Player 2 move up">▲</button>
+            <div class="dpad-row">
+              <button data-dir="left" aria-label="Player 2 move left">◀</button>
+              <button data-dir="down" aria-label="Player 2 move down">▼</button>
+              <button data-dir="right" aria-label="Player 2 move right">▶</button>
+            </div>
+          </section>
+
+          <p id="status" class="status" role="status"></p>
+        </aside>
       </section>
-
-      <section class="board-wrap" aria-label="Snake board">
-        <div id="board" class="board" role="grid" aria-live="polite"></div>
-      </section>
-
-      <section class="controls">
-        <button id="start" type="button">Start</button>
-        <button id="pause" type="button">Pause</button>
-        <button id="restart" type="button">Restart</button>
-        <button id="theme-toggle" type="button">Dark Mode</button>
-      </section>
-
-      <section class="dpad p1" aria-label="On-screen controls player 1">
-        <button data-dir="up" aria-label="Move up">▲</button>
-        <div class="dpad-row">
-          <button data-dir="left" aria-label="Move left">◀</button>
-          <button data-dir="down" aria-label="Move down">▼</button>
-          <button data-dir="right" aria-label="Move right">▶</button>
-        </div>
-      </section>
-
-      <section class="dpad p2 hidden" aria-label="On-screen controls player 2">
-        <button data-dir="up" aria-label="Player 2 move up">▲</button>
-        <div class="dpad-row">
-          <button data-dir="left" aria-label="Player 2 move left">◀</button>
-          <button data-dir="down" aria-label="Player 2 move down">▼</button>
-          <button data-dir="right" aria-label="Player 2 move right">▶</button>
-        </div>
-      </section>
-
-      <p id="status" class="status" role="status"></p>
     </main>
 
     <script type="module" src="./src/game.js"></script>
