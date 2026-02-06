@@ -40,6 +40,7 @@ export function initState(mode = "single", rng = Math.random) {
     food: null,
     scores: directions.map(() => 0),
     status: "ready",
+    wrapWalls: false,
   };
 
   return {
@@ -62,11 +63,14 @@ export function advance(state, rng = Math.random) {
   if (state.status === "over" || state.status === "paused") return state;
 
   const nextDirections = [...state.nextDirections];
-  const nextHeads = state.snakes.map((snake, index) => {
+  const rawNextHeads = state.snakes.map((snake, index) => {
     const head = snake[0];
     const delta = DIRECTIONS[nextDirections[index]];
     return { x: head.x + delta.x, y: head.y + delta.y };
   });
+  const nextHeads = rawNextHeads.map((pos) =>
+    state.wrapWalls ? wrapPosition(pos) : pos
+  );
 
   const willGrow = nextHeads.map(
     (nextHead) => state.food && positionsEqual(nextHead, state.food)
@@ -79,9 +83,11 @@ export function advance(state, rng = Math.random) {
 
   let collision = false;
 
-  nextHeads.forEach((nextHead) => {
-    if (hitsWall(nextHead)) collision = true;
-  });
+  if (!state.wrapWalls) {
+    nextHeads.forEach((nextHead) => {
+      if (hitsWall(nextHead)) collision = true;
+    });
+  }
 
   for (let i = 0; i < nextHeads.length; i += 1) {
     for (let j = i + 1; j < nextHeads.length; j += 1) {
@@ -161,6 +167,13 @@ export function placeFood(state, rng = Math.random) {
 
 export function hitsWall(pos) {
   return pos.x < 0 || pos.x >= GRID_SIZE || pos.y < 0 || pos.y >= GRID_SIZE;
+}
+
+export function wrapPosition(pos) {
+  return {
+    x: (pos.x + GRID_SIZE) % GRID_SIZE,
+    y: (pos.y + GRID_SIZE) % GRID_SIZE,
+  };
 }
 
 export function hitsSelf(pos, snake) {

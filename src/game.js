@@ -15,6 +15,7 @@ const highScoreWrap = document.getElementById("high-score-wrap");
 const scoreLabel = document.getElementById("score-label");
 const controlsHint = document.getElementById("controls-hint");
 const modeSelect = document.getElementById("mode");
+const wrapWallsToggle = document.getElementById("wrap-walls");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
@@ -130,8 +131,13 @@ function render() {
             "P1: WASD",
             "P2: Arrow keys",
             "Space: Pause/Resume",
+            state.wrapWalls ? "Walls: Wrap" : "Walls: Solid",
           ]
-        : ["Arrows or WASD", "Space: Pause/Resume"];
+        : [
+            "Arrows or WASD",
+            "Space: Pause/Resume",
+            state.wrapWalls ? "Walls: Wrap" : "Walls: Solid",
+          ];
     controlsHint.innerHTML = hints.map((hint) => `<li>${hint}</li>`).join("");
   }
 
@@ -153,6 +159,10 @@ function render() {
 
   if (modeSelect) {
     modeSelect.value = state.mode;
+  }
+
+  if (wrapWallsToggle) {
+    wrapWallsToggle.checked = state.wrapWalls;
   }
 
   if (dpadP2) {
@@ -207,6 +217,7 @@ function renderGameToText() {
     note: "Origin is top-left. x increases right, y increases down.",
     mode: state.mode,
     status: state.status,
+    wrapWalls: state.wrapWalls,
     scores: state.scores,
     food: state.food,
     snakes: state.snakes,
@@ -323,7 +334,9 @@ function onStart() {
 
 function onRestart() {
   stopLoop();
+  const wrapWalls = state.wrapWalls;
   state = restart(state);
+  state = { ...state, wrapWalls };
   render();
 }
 
@@ -333,7 +346,14 @@ function onPause() {
 
 function onModeChange(event) {
   stopLoop();
+  const wrapWalls = state.wrapWalls;
   state = initState(event.target.value);
+  state = { ...state, wrapWalls };
+  render();
+}
+
+function onWrapWallsChange(event) {
+  state = { ...state, wrapWalls: event.target.checked };
   render();
 }
 
@@ -349,3 +369,4 @@ if (dpadP1) dpadP1.addEventListener("click", onDpadClick);
 if (dpadP2) dpadP2.addEventListener("click", onDpadP2Click);
 if (modeSelect) modeSelect.addEventListener("change", onModeChange);
 if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
+if (wrapWallsToggle) wrapWallsToggle.addEventListener("change", onWrapWallsChange);

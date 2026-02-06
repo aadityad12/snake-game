@@ -12,3 +12,6 @@ Update:
 
 Update:
 - Added a sidebar controls hint block that updates based on mode.
+
+Update:
+- Added wrap-walls toggle (UI + logic) for both modes.

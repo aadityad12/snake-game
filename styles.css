@@ -105,6 +105,12 @@ h1 {
   background: var(--panel);
 }
 
+.mode input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
 .board-wrap {
   background: var(--panel);
   border: 2px solid var(--ink);
