@@ -9,3 +9,6 @@ Update:
 
 Update:
 - Moved UI to a right sidebar next to the board to remove vertical scrolling and wasted space on desktop.
+
+Update:
+- Added a sidebar controls hint block that updates based on mode.

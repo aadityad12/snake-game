@@ -13,6 +13,7 @@ const scoreP2El = document.getElementById("score-p2");
 const highScoreEl = document.getElementById("high-score");
 const highScoreWrap = document.getElementById("high-score-wrap");
 const scoreLabel = document.getElementById("score-label");
+const controlsHint = document.getElementById("controls-hint");
 const modeSelect = document.getElementById("mode");
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("start");
@@ -120,6 +121,18 @@ function render() {
 
   if (highScoreWrap) {
     highScoreWrap.classList.toggle("hidden", state.mode !== "single");
+  }
+
+  if (controlsHint) {
+    const hints =
+      state.mode === "multi"
+        ? [
+            "P1: WASD",
+            "P2: Arrow keys",
+            "Space: Pause/Resume",
+          ]
+        : ["Arrows or WASD", "Space: Pause/Resume"];
+    controlsHint.innerHTML = hints.map((hint) => `<li>${hint}</li>`).join("");
   }
 
   if (state.status === "ready") {
